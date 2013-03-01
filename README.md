@@ -1,4 +1,4 @@
-ushahidi-auto-upgrader
-======================
+Auto-Upgrader
+#############
 
-An auto upgrader module for the Ushahidi platform
+An Ushahidi plugin to automagically upgrade an Ushahidi install
