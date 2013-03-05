@@ -24,7 +24,7 @@ class Update {
 		$this->log = array();
 		$this->errors = array();
 		$this->error_level = ini_get('error_reporting');
-		$this->is_direct_method = false;
+		$this->is_direct_method = FALSE;
 
 		$this->session = Session::instance();
 		

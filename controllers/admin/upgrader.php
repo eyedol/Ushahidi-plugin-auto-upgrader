@@ -57,9 +57,9 @@ class Upgrader_Controller extends Admin_Controller {
 			if ($post->validate())
 			{
 				$this->upgrade->logger("STARTED UPGRADE\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-				$this->template->content = new View('admin/upgrader/upgrade_status');
-				$this->themes->js = new View('admin/upgrader/upgrader_status_js');
-				$this->themes->js->backup = $post->chk_db_backup_box;
+				$this->template->content = new View('admin/upgrader/upgrader_status');
+				$this->template->js = new View('admin/upgrader/upgrader_status_js');
+				$this->template->js->backup = $post->chk_db_backup_box;
 				$this->template->content->title = Kohana::lang('ui_admin.upgrade_ushahidi_status');
 				
 				// Set submitted ftp credentials
@@ -71,6 +71,7 @@ class Upgrader_Controller extends Admin_Controller {
 					{
 						$this->session->set('hostname', $hostname[0]);
 						$this->session->set('port', $hostname[1]);
+						Settings_Model::save_setting('ftp_server', $post->ftp_server);
 					} 
 					else 
 					{ 
@@ -78,19 +79,24 @@ class Upgrader_Controller extends Admin_Controller {
 					}	
 				}
 				
-				$this->session->set('username', $post->ftp_user_name);
-				$this->session->set('password', $post->ftp_user_pass);
-				
-				Settings_Model::save_setting('ftp_server', $post->ftp_server);
-				Settings_Model::save_setting('ftp_user_name', $post->ftp_user_name);
+				if (isset($post->ftp_user_name))
+				{ 
+					$this->session->set('username', $post->ftp_user_name);
+					Settings_Model::save_setting('ftp_user_name', $post->ftp_user_name);
+				}
+
+				if (isset($post->ftp_user_pass))
+				{ 
+					$this->session->set('password', $post->ftp_user_pass);
+				}
 				
 				// Log file location
-				$this->themes->js->log_file = url::site(). "admin/upgrader/logfile?f=".$this->session->get('upgrade_session').".txt";
+				$this->template->js->log_file = url::site(). "admin/upgrader/logfile?f=".$this->session->get('upgrade_session').".txt";
 			}
 			 // No! We have validation errors, we need to show the form again, with the errors
 			else
 			{
-				$this->themes->js = new View('admin/upgrader/upgrader_js');
+				$this->template->js = new View('admin/upgrader/upgrader_js');
 				
 				// repopulate the form fields
 				$form = arr::overwrite($form, $post->as_array());
@@ -102,7 +108,7 @@ class Upgrader_Controller extends Admin_Controller {
 		}
 		else
 		{
-			$this->themes->js = new View('admin/upgrader/upgrader_js');
+			$this->template->js = new View('admin/upgrader/upgrader_js');
 		}
 		
 		$this->template->content->ftp_server = Settings_Model::get_setting('ftp_server');
@@ -117,6 +123,7 @@ class Upgrader_Controller extends Admin_Controller {
 		$this->template->content->changelogs = (is_object($this->release) == TRUE) ? $this->release->changelog : array();
 		$this->template->content->download = (is_object($this->release) == TRUE) ? $this->release->download : "";
 		$this->template->content->critical = (is_object($this->release) == TRUE) ? $this->release->critical : "";
+		$this->template->content->is_direct_method = $this->upgrade->is_direct_method;
 	}
 
 	public function status($step = 0)
@@ -132,31 +139,13 @@ class Upgrader_Controller extends Admin_Controller {
 		$from = $this->upgrade->filesystem->trailingslashit($this->upgrade->filesystem->abspath())."media/uploads/upgrade/";
 		$root = $this->upgrade->filesystem->trailingslashit($this->upgrade->filesystem->abspath());
 
-		// Put website into maintenance mode
-		if ($step == 0) 
-		{
-		 	$this->upgrade->logger("Putting Ushahidi into maintenance mode ");
-		 	$this->upgrade->add_maintenance_file();
-
-		 	if ($this->upgrade->success)
-		 	{
-		 		$this->upgrade->logger("Ushahidi Successfully put into maintenace mode");
-		 		echo json_encode(array("status" => "success", "message" => 'Ushahidi Successfully put into maintenace mode'));
-		 	} 
-		 	else 
-		 	{
-		 	 	$this->upgrade->logger("Failed to put Ushahidi into maintenance mode");
-		 	 	echo json_encode(array("status" => "error", "message" => 'Failed to put Ushahidi into maintenance mode'));
-		 	}
-		}
-
-		if ($step == 1)
+		if ($step == 0)
 		{
 			$this->upgrade->logger("Downloading latest version of ushahidi...Url");
 			echo json_encode(array("status"=>"success", "message"=> 'Downloading latest version of ushahidi... url '));
 		}
 
-		if ($step == 2)
+		if ($step == 1)
 		{
 			// Create the Directory if it doesn't exist
 			if ( ! file_exists(DOCROOT."media/uploads/upgrade"))
@@ -182,7 +171,7 @@ class Upgrader_Controller extends Admin_Controller {
 			} 
 		}
 
-		if ($step == 3)
+		if ($step == 2)
 		{
 			//extract compressed file
 			$this->upgrade->unzip_ushahidi($zip_file, $working_dir);
@@ -201,7 +190,7 @@ class Upgrader_Controller extends Admin_Controller {
 		}
 
 
-		if ($step == 4)
+		if ($step == 3)
 		{
 
 			//copy files
@@ -231,7 +220,7 @@ class Upgrader_Controller extends Admin_Controller {
 
 
 		// Database BACKUP + UPGRADE
-		if ($step == 5)
+		if ($step == 4)
 		{
 			// backup database.
 			// is gzip enabled ?
@@ -256,7 +245,7 @@ class Upgrader_Controller extends Admin_Controller {
 
 
 		// Database UPGRADE ONLY
-		if ($step == 6)
+		if ($step == 5)
 		{
 			if (file_exists(DOCROOT."sql/"))
 			{
@@ -274,14 +263,13 @@ class Upgrader_Controller extends Admin_Controller {
 		}
 
 		// Delete downloaded files
-		if ($step == 7)
+		if ($step == 6)
 		{
 			$this->upgrade->logger("Deleting downloaded files...");
-			echo json_encode(array("status"=>"success", "message"=>'Deleting downloaded files'));
-				
+			echo json_encode(array("status"=>"success", "message"=>'Deleting downloaded files'));		
 		}
 
-		if ($step == 8)
+		if ($step == 7)
 		{
 			$this->upgrade->remove_recursively($root."media/uploads/upgrade/");
 
@@ -301,26 +289,6 @@ class Upgrader_Controller extends Admin_Controller {
 							"message"=> sprintf('UPGRADE UNSUCCESSFUL. View <a href="%s" target="_blank">Log File</a>', Url::base()."admin/upgrade/logfile?f=".$this->session['upgrade_session'].".txt")
 				));
 			}
-
-			
-		}
-
-		//Remove maintenace file
-		if ($step == 9)
-		{
-			$this->upgrade->remove_maintenance_file();
-
-			if($this->upgrade->success) 
-			{
-				$this->upgrade->logger("Maintenace file successfully removed");
-				echo json_encode(array("status"=>"success", "message"=>'Maintenance file successfully removed'));
-			}
-			else
-			{
-				$this->upgrade->logger("Maintenace file failed to removed");
-				echo json_encode(array("status"=>"error", "message"=>'Maintenance file failed removed'));
-			}
-			unset($this->session['upgrade_session']);
 		}
 	}
 

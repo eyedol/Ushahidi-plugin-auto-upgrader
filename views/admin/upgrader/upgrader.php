@@ -50,6 +50,7 @@
 				<?php print form::label('chk_db_backup_box', Kohana::lang('upgrade.upgrade_db_text_5'));?>
 				<?php print form::checkbox('chk_db_backup_box', '1', 1);?>
 			</p>
+			<?php if ( ! $is_direct_method): ?>
 			<input type="button" id="upgrade" name="button" value="<?php echo Kohana::lang('upgrade.upgrade_continue_btn_text');?>" class="login_btn" onClick="showFTP();" />
 			<div class="report-form ftp-settings" id="ftp_settings">
 				<div class="row">
@@ -67,6 +68,7 @@
 					<h4><?php print Kohana::lang('upgrade.upgrade_ftp_password'); ?></h4>
 					<?php print form::password('ftp_user_pass', "", ' class="text title_2"'); ?>
 				</div>
+				<?php endif; ?>
 				<div class="row" style="clear:both;margin-top:10px;">
 					<input type="submit" id="upgrade" name="submit" value="<?php echo Kohana::lang('upgrade.upgrade_continue_btn_text');?>" class="login_btn" />
 				</div>
