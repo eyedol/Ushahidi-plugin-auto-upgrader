@@ -27,13 +27,15 @@ class Update {
 		$this->session = $session;
 		$this->is_direct_method = false;
 
-		if ( ! isset($this->session['upgrade_session']))
+		$this->session = Session::instance();
+		
+		if ( ! $this->session->get('upgrade_session'))
 		{
-			$this->session['upgrade_session'] = date("Y_m_d-H_i_s");
+			$this->session->set('upgrade_session', date("Y_m_d-H_i_s"));
 		}
 
 		//initialize filesystem
-		$this->init_filesystem( $this->session, $context = false );
+		$this->init_filesystem( $this->session, $context = FALSE );
 	}
 
 	/**
@@ -58,37 +60,38 @@ class Update {
 		{
 			$this->logger(sprintf("Upgrade failed: %d", $http_client->get_error_msg()));
 			$this->errors[] = sprintf("Upgrade failed: %d", $http_client->get_error_msg());
-			$this->success = false;
+			$this->success = FALSE;
 			return $results;
 		}	
 	}
 
 	/**
-		 * Initialises and connects the Ushahidi Filesystem Abstraction classes.
-		 * This function will include the chosen transport and attempt connecting.
-		 *
-		 * @param array $args (optional) Connection args.
-		 * @param string $context (optional) Context for get_filesystem_method(), See function declaration for more information.
-		 * @return boolean false on failure, TRUE on success
-		*/
-	public function init_filesystem( $args = false, $context = false ) {
+	 * Initialises and connects the Ushahidi Filesystem Abstraction classes.
+	 * This function will include the chosen transport and attempt connecting.
+	 *
+	 * @param array $args (optional) Connection args.
+	 * @param string $context (optional) Context for get_filesystem_method(), See function declaration for more information.
+	 * @return boolean false on failure, TRUE on success
+	 */
+	public function init_filesystem( $args = false, $context = FALSE ) 
+	{
 
 		$method = $this->get_filesystem_method($args, $context);
 
 		if ( ! $method )
-			return false;
+			return FALSE;
 
-		if ( ! class_exists("Ushahidi_Filesystem_$method") ) {
+		if ( ! class_exists("Ushahidi_Filesystem_$method") ) 
+		{
 			$abstraction_file = sprintf(ROOT_DIR."libs".DIRECTORY_SEPARATOR."Ushahidi_FileSystem_%s.php",$method);
-			if ( ! file_exists($abstraction_file) ) { 
+			if ( ! file_exists($abstraction_file) )
 				return;
-			}
 
 			require_once($abstraction_file);
 		}
 		
 		// Determine if the method being used is direct
-		$this->is_direct_method = strtolower($method) == 'direct' ? TRUE : false;
+		$this->is_direct_method = strtolower($method) == 'direct' ? TRUE : FALSE;
 
 		$method = "Ushahidi_FileSystem_$method";
 
@@ -96,61 +99,89 @@ class Update {
 
 		//Define the timeouts for the connections. Only available after the construct is called to allow for per-transport overriding of the default.
 		if ( ! defined('FS_CONNECT_TIMEOUT') )
+		{ 
 			define('FS_CONNECT_TIMEOUT', 30);
+		}
+
 		if ( ! defined('FS_TIMEOUT') )
+		{ 
 			define('FS_TIMEOUT', 30);
+		}
 
 		if ( count($this->filesystem->errors) > 0 )
-			return false;
+			return FALSE;
 
 		if ( !$this->filesystem->connect() )
-			return false; //There was an error connecting to the server.
+			return FALSE; //There was an error connecting to the server.
 
 		// Set the permission constants if not already set.
 		if ( ! defined('FS_CHMOD_DIR') )
+		{ 
 			define('FS_CHMOD_DIR', 0755 );
+		}
+		
 		if ( ! defined('FS_CHMOD_FILE') )
+		{ 
 			define('FS_CHMOD_FILE', 0644 );
+		}
 
 		return TRUE;
 	}
 
 	/**
-		 * Determines which Filesystem Method to use.
-		 * The priority of the Transports are: Direct, SSH2, FTP PHP Extension, FTP Sockets (Via Sockets class, or fsockopen())
-		 *
-		 * Note that the return value of this function can be overridden in 2 ways
-		 *  - By defining FS_METHOD in your <code>wp-config.php</code> file
-		 *  - By using the filesystem_method filter
-		 * Valid values for these are: 'direct', 'ssh', 'ftpext' or 'ftpsockets'
-		 * Plugins may also define a custom transport handler, See the WP_Filesystem function for more information.
- 	 *
-		 * @since 2.5.0
-		 *
-		 * @param array $args Connection details.
-		 * @param string $context Full path to the directory that is tested for being writable.
-		 * @return string The transport to use, see description for valid return values.
-		 */
-	public function get_filesystem_method($args = array(), $context = false) {
-		$method = defined('FS_METHOD') ? FS_METHOD : false; //Please ensure that this is either 'direct', 'ssh', 'ftpext' or 'ftpsockets'
+	 * Determines which Filesystem Method to use.
+	 * The priority of the Transports are: Direct, SSH2, FTP PHP Extension, FTP Sockets (Via Sockets class, or fsockopen())
+	 *
+	 * @param array $args Connection details.
+	 * @param string $context Full path to the directory that is tested for being writable.
+	 * @return string The transport to use, see description for valid return values.
+	 */
+	public function get_filesystem_method($args = array(), $context = FALSE) 
+	{
+		//Please ensure that this is either 'direct', 'ssh', 'ftpext' or 'ftpsockets'
+		$method = defined('FS_METHOD') ? FS_METHOD : false; 
 
-		if ( ! $method && function_exists('getmyuid') && function_exists('fileowner') ){
+		if ( ! $method AND function_exists('getmyuid') AND function_exists('fileowner') )
+		{
 			if ( !$context )
+			{ 
 				$context = DOCROOT;
+			}
 			$context = $this->trailingslashit($context);
 			$temp_file_name = $context . 'temp-write-test-' . time();
 			$temp_handle = @fopen($temp_file_name, 'w');
-			if ( $temp_handle ) {
+			
+			if ( $temp_handle ) 
+			{
 				if ( getmyuid() == @fileowner($temp_file_name) )
+				{ 
 					$method = 'direct';
+				}
 				@fclose($temp_handle);
 				@unlink($temp_file_name);
 			}
-			}
+		}
 
-		if ( ! $method && isset($args['connection_type']) && 'ssh' == $args['connection_type'] && extension_loaded('ssh2') && function_exists('stream_get_contents') ) $method = 'ssh2';
-		if ( ! $method && extension_loaded('ftp') ) $method = 'ftpext';
-		if ( ! $method && ( extension_loaded('sockets') || function_exists('fsockopen') ) ) $method = 'ftpsockets'; //Sockets: Socket extension; PHP Mode: FSockopen / fwrite / fread
+		if ( ! $method AND isset($args['connection_type']) AND 
+			'ssh' == $args['connection_type'] AND extension_loaded('ssh2') AND 
+			function_exists('stream_get_contents') ) 
+		{
+			// Use SSH
+			$method = 'ssh2';
+		}
+
+		if ( ! $method AND extension_loaded('ftp') ) 
+		{ 
+			// Use PHP FTP extension
+		 	$method = 'ftpext';
+		}
+
+		if ( ! $method AND ( extension_loaded('sockets') OR 
+			function_exists('fsockopen') ) ) 
+		{ 
+			// Sockets: Socket extension; PHP Mode: FSockopen / fwrite / fread
+			$method = 'ftpsockets'; 
+		}
 		
 		return ucfirst($method);
 	}
@@ -161,19 +192,18 @@ class Update {
  	 * @param String zip_file-- the zip file to be extracted.
  	 * @param String destdir-- destination directory
  	 */
-
 	public function unzip_ushahidi($zip_file, $destdir)
 	{
 		$archive = new Pclzip($zip_file);
-		$this->log[] = sprintf("Unpacking %s ",$zip_file);
+		$this->logger(sprintf("Unpacking %s ",$zip_file));
 
 		if (@$archive->extract(PCLZIP_OPT_PATH, $destdir) == 0)
 		{
 			$this->errors[] = sprintf('Extractions failed to execute successfully',$archive->errorInfo(TRUE) ) ;
-			return false;
+			return FALSE;
 		}
 
-		$this->log[] = sprintf("Unpacking went successful");
+		$this->logger = sprintf("Unpacking went successful");
 		$this->success = TRUE;
 		return TRUE;
 	}
@@ -188,15 +218,18 @@ class Update {
 	{
 		$handler = fopen( $dest_file,'w');
 		$fwritten = fwrite($handler,$zip_file);
-		$this->log[] = sprintf("Writting to a file ");
-		if( !$fwritten ) {
+		$this->logger(sprintf("Writting to a file "));
+
+		if ( ! $fwritten ) 
+		{
 			$this->errors[] = sprintf('Writing to zip file failed',$dest_file);
-			$this->success = false;
-			return false;
+			$this->success = FALSE;
+			return FALSE;
 		}
+
 		fclose($handler);
 		$this->success = TRUE;
-		$this->log[] = sprintf("Zip file successfully written to a file ");
+		$this->logger(sprintf("Zip file successfully written to a file "));
 		return TRUE;
 	}
 
@@ -223,8 +256,8 @@ class Update {
 
 		preg_match('/({.*})/', @file_get_contents($version_url), $matches);
 
-		$version_json_string = false;
-		if(isset($matches[0]))
+		$version_json_string = FALSE;
+		if (isset($matches[0]))
 		{
 			$version_json_string = $matches[0];
 		}
@@ -248,15 +281,15 @@ class Update {
 		$message = date("Y-m-d H:i:s")." : ".$message;
 		$mesg = str_replace($filter_crlf,'',$message);
 		$mesg .= "\n";
-		//$logfile = DOCROOT."application/logs/".$this->session['upgrade_session'].".txt";
-		$logfile = DOCROOT."application/logs/upgrade_log.txt";
+		$logfile = DOCROOT."application/logs/".$this->session->get('upgrade_session').".txt";
 		$logfile = fopen($logfile, 'a+');
 		fwrite($logfile, $mesg);
 		fclose($logfile);
 	}
 
 	/**
-	 * Copies a directory from one location to another via the Ushahidi Filesystem Abstraction.
+	 * Copies a directory from one location to another via the Ushahidi 
+	 * Filesystem Abstraction.
 	 *
 	 *
 	 * @param string $from source directory
@@ -264,25 +297,39 @@ class Update {
 	 * @param array $skip_list a list of files/folders to skip copying
 	 * @return boolean on failure, TRUE on success.
 	 */
-	public function copy_recursively($from, $to, $skip_list = array() ) {
+	public function copy_recursively($from, $to, $skip_list = array() ) 
+	{
 		$dirlist = $this->filesystem->dirlist($from);
+		
 		$from = $this->filesystem->trailingslashit($from);
+		
 		$to = $this->filesystem->trailingslashit($to);
 
 		$skip_regex = '';
-		foreach ( (array)$skip_list as $key => $skip_file )
+
+		foreach ( (array)$skip_list as $key => $skip_file ) 
+		{ 
 			$skip_regex .= preg_quote($skip_file, '!') . '|';
+		}
 
 		if ( !empty($skip_regex) )
+		{ 
 			$skip_regex = '!(' . rtrim($skip_regex, '|') . ')$!i';
+		}
 
-		foreach ( (array) $dirlist as $filename => $fileinfo ) {
+		foreach ( (array) $dirlist as $filename => $fileinfo ) 
+		{
 			if ( !empty($skip_regex) )
+			{ 
 				if ( preg_match($skip_regex, $from . $filename) )
 					continue;
+			}
 
-			if ( 'f' == $fileinfo['type'] ) {
-				if ( ! $this->filesystem->copy($from . $filename, $to . $filename, TRUE, FS_CHMOD_FILE) ) {
+			if ( 'f' == $fileinfo['type'] ) 
+			{
+				if ( ! $this->filesystem->copy($from . $filename, $to . $filename, 
+					TRUE, FS_CHMOD_FILE) ) 
+				{
 					// If copy failed, chmod file to 0644 and try again.
 
 					$this->filesystem->chmod($to . $filename, 0644);
@@ -290,26 +337,35 @@ class Update {
 					if ( ! $this->filesystem->copy($from . $filename, $to . $filename, TRUE, FS_CHMOD_FILE) ) 
 					{
 						$this->logger(sprintf("Could not copy %s ", $to . $filename));
-						$this->success = false;
-						return false; 
-					} else {
+						$this->success = FALSE;
+						return FALSE; 
+					} 
+					else 
+					{
 						$this->success = TRUE;
 						$this->logger("Copied to ".$to . $filename);
 						//Turn on error reporting again
 						error_reporting($this->error_level);
 					}
 
-				} else {
+				} 
+				else 
+				{
 					$this->success = TRUE;
 					$this->logger("Copied to ".$to . $filename);
 					//Turn on error reporting again
 					error_reporting($this->error_level);
 				}
-			} elseif ( 'd' == $fileinfo['type'] ) {
-				if ( !$this->filesystem->is_dir($to . $filename) ) {
+			} 
+			elseif ( 'd' == $fileinfo['type'] ) 
+			{
+				if ( !$this->filesystem->is_dir($to . $filename) ) 
+				{
 					if ( !$this->filesystem->mkdir($to . $filename, FS_CHMOD_DIR) )
-						$this->logger("** Failed creating directory ".$to . $filename.". It might already exist.");
-					
+					{ 
+						$this->logger("** Failed creating directory ".$to . 
+							$filename.". It might already exist.");
+					}
 				}
 				$this->copy_recursively($from . $filename, $to . $filename, $skip_list);
 			}
@@ -326,13 +382,15 @@ class Update {
 		$this->filesystem->chdir($root);
 
 		$old_files = file($file, FILE_IGNORE_NEW_LINES);
-		if(is_array($old_files)) { 
+		if(is_array($old_files)) 
+		{ 
 			foreach ($old_files as $old_file)
 			{
 				$ftp_filename = str_replace($root,"",$old_file);
 
 				// Skip removed config files
-				if (stripos($old_file,'application/config/') !== FALSE) continue;
+				if (stripos($old_file,'application/config/') !== FALSE) 
+					continue;
 
 				if (is_file($old_file))
 				{
@@ -352,7 +410,7 @@ class Update {
 						$this->logger("** Failed removing ".$old_file);
 						//Turn on error reporting again
 						error_reporting($this->error_level);
-						return false;
+						return FALSE;
 					}
 				}
 				elseif(is_dir($old_file))
@@ -368,15 +426,17 @@ class Update {
 					}
 					else
 					{
-						$this->success = false;
+						$this->success = FALSE;
 						$this->logger("** Failed removing ".$old_file);
 						//Turn on error reporting again
 						error_reporting($this->error_level);
-						return false;
+						return FALSE;
 					}
 				}
 			}
-		} else {
+		} 
+		else 
+		{
 			$this->success = TRUE;
 			$this->logger("No old files to be removed");
 		}
@@ -403,7 +463,7 @@ class Update {
 		else
 		{
 			$this->errors[] = sprintf("Directory %s not deleted", $dir );
-			$this->success = false;	
+			$this->success = FALSE;	
 		}
 	}
 
@@ -411,21 +471,24 @@ class Update {
      * Create maintenance.php file to indicate that the website 
      * is undergoing maintenance.
      */
-	public function add_maintenance_file() {
+	public function add_maintenance_file() 
+	{
 		$root = $this->filesystem->trailingslashit($this->filesystem->abspath());
+		
 		$this->logger("** Creating maintenance.php file");
 
 		// Check if maintenance_off.php exists, then make a copy of it
 		if ( $this->filesystem->exists($root.'maintenance_off.php'))
 		{ 
-			if ( $this->filesystem->copy( $root.'maintenance_off.php',$root.'maintenance.php',TRUE, FS_CHMOD_FILE)) 
+			if ( $this->filesystem->copy( $root.'maintenance_off.php',
+				$root.'maintenance.php',TRUE, FS_CHMOD_FILE)) 
 			{
 				$this->success = TRUE;
 				$this->logger("** Maintenance file successfully created");
 			} 
 			else 
 			{
-				$this->success = false;
+				$this->success = FALSE;
 				$this->logger("** Maintenance file failed to be created");
 				return false;
 			}
@@ -433,14 +496,16 @@ class Update {
 		else 
 		{
 			$maintenance_message = "This website is currently undergoing maintenance. Please try again later.";
-			if( $this->filesystem->put_contents($root.'maintenance.php',$maintenance_message, FS_CHMOD_FILE))
+			
+			if( $this->filesystem->put_contents($root.'maintenance.php',
+				$maintenance_message, FS_CHMOD_FILE))
 			{
 				$this->success = TRUE;
 				$this->logger("** Maintenance file successfully created");
 			}
 			else
 			{
-				$this->success = false;
+				$this->success = FALSE;
 				$this->logger("** Maintenance file failed to be created");
 				return false;
 			}
@@ -449,6 +514,8 @@ class Update {
 
 	/**
 	 * Remove maintenace file
+	 *
+	 * @return boolean
 	 */
 	public function remove_maintenance_file() 
 	{
@@ -460,45 +527,30 @@ class Update {
 				$this->success = TRUE;
 
 			} else {
-				$this->success = false;
-				return false;
+				$this->success = FALSE;
+				return FALSE;
 			}
 		}
 	}
 	
 	/**
-	 * Adds the site_name to the application/config/config.php file
+	 * Add a trailing slash to the end of a path
+	 * @param  string $path   The path to add the trailing slash
+	 * @return string         A path with a trailing slash
 	 */
-	public function add_config_details( $base_path )
+	public function trailingslashit($path) 
 	{
-		$config_file = file($root.'application/config/config.php');
-		$handle = fopen($root.'application/config/config.php', 'w');
-	
-		foreach( $config_file as $line_number => $line )
-		{
-			if( !empty( $base_path ) )
-			{
-				switch( trim(substr( $line,0,23 )) ) {
-					case "\$config['site_domain']":
-						fwrite($handle, str_replace("/","/".
-										$base_path."/",$line ));
-										break;
-	
-					default:
-						fwrite($handle, $line);
-				}
-			}else {
-				fwrite($handle, $line);
-			}
-		}
+		return $this->untrailingslashit($path) . '/';
 	}
 
-	public function trailingslashit($string) {
-		return $this->untrailingslashit($string) . '/';
-	}
-
-	public function untrailingslashit($string) {
-		return rtrim($string, '/');
+	/**
+	 * Remove trailing slash from the end of a path
+	 * @param  string $path The path to remove the trailing slash
+	 * @return string       A path without the traling slash
+	 */
+	public function untrailingslashit($path) 
+	{
+		return rtrim($path, '/');
 	}
 }
 ?>
