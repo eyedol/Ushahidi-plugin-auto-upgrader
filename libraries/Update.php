@@ -19,12 +19,11 @@ class Update {
 	public $filesystem;
 	public $is_direct_method;
 
-	public function __construct($session)
+	public function __construct()
 	{
 		$this->log = array();
 		$this->errors = array();
 		$this->error_level = ini_get('error_reporting');
-		$this->session = $session;
 		$this->is_direct_method = false;
 
 		$this->session = Session::instance();
@@ -83,7 +82,7 @@ class Update {
 
 		if ( ! class_exists("Ushahidi_Filesystem_$method") ) 
 		{
-			$abstraction_file = sprintf(ROOT_DIR."libs".DIRECTORY_SEPARATOR."Ushahidi_FileSystem_%s.php",$method);
+			$abstraction_file = Kohana::find_file('libraries',sprintf("Ushahidi_FileSystem_%s",$method));
 			if ( ! file_exists($abstraction_file) )
 				return;
 
@@ -237,13 +236,11 @@ class Update {
 	 * Fetch latest ushahidi version from a remote instance then
 	 * compare it with local instance version number.
 	 *
-	 * @param float ushahidi_version The version number of the currently running
-	 * ushahidi.
 	 */
-	public function _fetch_core_release($ushahidi_version)
+	public function _fetch_core_release()
 	{
 		// Current Version
-		$current = urlencode($ushahidi_version);
+		$current = urlencode(Kohana::config('settings.ushahidi_version'));
 
 		// Extra Stats
 		$url = urlencode(preg_replace("/^https?:\/\/(.+)$/i","\\1",

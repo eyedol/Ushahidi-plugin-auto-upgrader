@@ -2,11 +2,11 @@
 
 class Upgrader_Controller extends Admin_Controller {
 	
-	private $db;
+	protected $db;
 	
-	private $upgrade;
+	protected $upgrade;
 	
-	private $release;
+	protected $release;
 
 	public function __construct() 
 	{
@@ -69,12 +69,12 @@ class Upgrader_Controller extends Admin_Controller {
 					$hostname = explode(':', $post->ftp_server, 2);
 					if (count($hostname) == 2 ) 
 					{
-						$this->session->set('hostname') = $hostname[0];
-						$this->session->set('port') = $hostname[1];
+						$this->session->set('hostname', $hostname[0]);
+						$this->session->set('port', $hostname[1]);
 					} 
 					else 
 					{ 
-						$this->session->set('hostname') = $post->ftp_server;
+						$this->session->set('hostname', $post->ftp_server);
 					}	
 				}
 				

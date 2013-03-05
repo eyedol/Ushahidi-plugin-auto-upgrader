@@ -1,5 +1,4 @@
 <?php
-	define('DOCROOT', dirname(__FILE__) . '/');
 	define('FS_CHMOD_DIR', 0755);
 	define('FS_CHMOD_FILE', 0644);
 	
