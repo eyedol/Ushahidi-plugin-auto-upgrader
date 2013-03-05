@@ -5,7 +5,7 @@
  * Provides the necessary functions to do the automatic upgrade
  */
 
-class Upgrade {
+class Update {
 
 	public $notices;
 	public $errors;
