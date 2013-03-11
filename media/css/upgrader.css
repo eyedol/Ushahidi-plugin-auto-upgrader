@@ -1,0 +1,11 @@
+.updates-info {
+    line-height: 29px;
+    font-size: 12px;
+    padding: 5px;
+    font-weight: bold;
+    color:red;
+}
+
+.updates-info a {
+    font-size: 1.1em;
+}

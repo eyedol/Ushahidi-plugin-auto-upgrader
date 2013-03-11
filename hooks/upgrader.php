@@ -18,6 +18,10 @@ class upgrader {
 	 */
 	public function add() 
 	{
+		if (Kohana::config('config.enable_ver_sync_warning') == TRUE)
+		{
+			plugin::add_stylesheet('autoupgrader/media/css/upgrader');
+		}
 		// Hook into the admin header nav bar
 		Event::add('ushahidi_action.header_nav_bar', array($this, 
 			'_upgrade_info'));
