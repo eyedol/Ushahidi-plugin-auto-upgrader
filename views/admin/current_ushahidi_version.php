@@ -21,11 +21,11 @@ if ((Kohana::config('config.enable_auto_upgrader') == TRUE))
 {
 	if (( !empty($version)) AND (url::current() != "admin/upgrader"))
 	{ ?>
-		<div id="current-version" class="update-info">
+		<span id="current-version" class="update-info">
 			<?php echo Kohana::lang('ui_admin.ushahidi');?> <?php echo $version; ?>
 			<?php echo Kohana::lang('ui_admin.version_available');?>
 			<a href="<?php echo url::site() ?>admin/upgrader" title="upgrade ushahidi"><?php echo Kohana::lang('ui_admin.update_link');?></a>
-		</div>
+		</span>
 	<?php
 	}
 } ?>

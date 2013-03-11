@@ -298,12 +298,6 @@ class Upgrader_Controller extends Admin_Controller {
 		$this->template = "";
 		$this->auto_render = FALSE;
 		
-		// Disable profiler
-		if (isset($this->profiler))
-		{
-			$this->profiler->disable();
-		}
-		
 		$view = View::factory('admin/current_ushahidi_version');
 		
 		$upgrade = new Update;
