@@ -31,10 +31,8 @@ class Upgrader_Controller extends Admin_Controller {
 
 		$form_action = "";
 		
-		$this->template->content->title = Kohana::lang('ui_admin.upgrade_ushahidi');
+		$this->template->content->title = Kohana::lang('upgrader.upgrade_ushahidi');
 
-		//$this->template->content->db_version =  Kohana::config('
-		  //	  settings.db_version');
 		$this->template->content->db_version = Kohana::config('settings.db_version');
 
 		 //Setup and initialize form fields names
@@ -60,7 +58,7 @@ class Upgrader_Controller extends Admin_Controller {
 				$this->template->content = new View('admin/upgrader/upgrader_status');
 				$this->template->js = new View('admin/upgrader/upgrader_status_js');
 				$this->template->js->backup = $post->chk_db_backup_box;
-				$this->template->content->title = Kohana::lang('ui_admin.upgrade_ushahidi_status');
+				$this->template->content->title = Kohana::lang('upgrader.upgrade_ushahidi_status');
 				
 				// Set submitted ftp credentials
 				if (isset($post->ftp_server))

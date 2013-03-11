@@ -23,9 +23,9 @@ if ((Kohana::config('config.enable_auto_upgrader') == TRUE))
 	{ ?>
 		<ul id="header_nav_left">
 		<li><span id="current-version" class="updates-info">
-			<?php echo Kohana::lang('ui_admin.ushahidi');?> <?php echo $version; ?>
-			<?php echo Kohana::lang('ui_admin.version_available');?>
-			<a href="<?php echo url::site() ?>admin/upgrader" title="upgrade ushahidi"><?php echo Kohana::lang('ui_admin.update_link');?></a>
+			<?php echo Kohana::lang('upgrader.ushahidi');?> <?php echo $version; ?>
+			<?php echo Kohana::lang('upgrader.version_available');?>
+			<a href="<?php echo url::site() ?>admin/upgrader" title="upgrade ushahidi"><?php echo Kohana::lang('upgrader.update_link');?></a>
 		</span></li>
 		</ul>
 	<?php
