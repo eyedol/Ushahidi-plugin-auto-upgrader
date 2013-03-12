@@ -5,7 +5,8 @@
 		public $errors = array();
 		public $options = array();
 
-		function __construct($opt='') {
+		public function __construct($opt='') 
+		{
 			$this->method = 'ftpext';
 
 			//Check if possible to use ftp functions.
@@ -20,38 +21,63 @@
 			if ( ! defined('FS_TIMEOUT') )
 				define('FS_TIMEOUT', 240);
 
-			if ( empty($opt['port']) )
+			$port = $opt->get('port');
+			
+			$hostname = $opt->get('hostname');
+
+			$username = $opt->get('username');
+
+			$password = $opt->get('password');
+
+			$connection_type = $opt->get('connection_type');
+
+			if ( empty($port))
+			{ 
 				$this->options['port'] = 21;
+			}
 			else
-				$this->options['port'] = $opt['port'];
+			{ 
+				$this->options['port'] = $port;
+			}
 
-			if ( empty($opt['hostname']) )
+			if ( empty($hostname) )
+			{ 
 				$this->errors[] = 'FTP hostname is required';
+			}
 			else
-				$this->options['hostname'] = $opt['hostname'];
-
-			if ( ! empty($opt['base']) )
-				$this->wp_base = $opt['base'];
+			{ 
+				$this->options['hostname'] = $hostname;
+			}
 
 			// Check if the options provided are OK.
-			if ( empty($opt['username']) )
+			if ( empty($username) )
+			{ 
 				$this->errors[] = 'FTP username is required';
+			}
 			else
-				$this->options['username'] = $opt['username'];
+			{ 
+				$this->options['username'] = $username;
+			}
 
-			if ( empty($opt['password']) )
+			if ( empty($password) )
+			{ 
 				$this->errors[] = 'FTP password is required';
+			}
 			else
-				$this->options['password'] = $opt['password'];
+			{ 
+				$this->options['password'] = $password;
+			}
 
 			$this->options['ssl'] = false;
-			if ( isset($opt['connection_type']) && 'ftps' == $opt['connection_type'] )
+			if ( isset($connection_type) AND 'ftps' == $connection_type )
+			{ 
 				$this->options['ssl'] = TRUE;
+			}
 		}
 
 		function connect() {
 
-			if ( isset($this->options['ssl']) && $this->options['ssl'] && function_exists('ftp_ssl_connect') )
+			if ( isset($this->options['ssl']) AND $this->options['ssl'] AND function_exists('ftp_ssl_connect') )
 				$this->link = @ftp_ssl_connect($this->options['hostname'], $this->options['port'], FS_CONNECT_TIMEOUT);
 			else
 				$this->link = @ftp_connect($this->options['hostname'], $this->options['port'], FS_CONNECT_TIMEOUT);

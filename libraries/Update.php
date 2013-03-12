@@ -8,15 +8,25 @@
 class Update {
 
 	public $notices;
+	
 	public $errors;
+	
 	public $success;
+	
 	public $error_level;
+	
 	public $session;
+	
 	public $ftp;
+	
 	public $ftp_server;
+	
 	public $ftp_user_name;
+	
 	public $ftp_user_pass;
+	
 	public $filesystem;
+	
 	public $is_direct_method;
 
 	public function __construct()
@@ -76,7 +86,7 @@ class Update {
 	{
 
 		$method = $this->get_filesystem_method($args, $context);
-
+		
 		if ( ! $method )
 			return FALSE;
 
@@ -91,7 +101,7 @@ class Update {
 		
 		// Determine if the method being used is direct
 		$this->is_direct_method = strtolower($method) == 'direct' ? TRUE : FALSE;
-
+		
 		$method = "Ushahidi_FileSystem_$method";
 
 		$this->filesystem = new $method($args);
@@ -110,7 +120,7 @@ class Update {
 		if ( count($this->filesystem->errors) > 0 )
 			return FALSE;
 
-		if ( !$this->filesystem->connect() )
+		if ( ! $this->filesystem->connect() )
 			return FALSE; //There was an error connecting to the server.
 
 		// Set the permission constants if not already set.
@@ -161,13 +171,15 @@ class Update {
 			}
 		}
 
-		if ( ! $method AND isset($args['connection_type']) AND 
+		/* No SSH support for now.
+		 * if ( ! $method AND isset($args['connection_type']) AND
+		 *
 			'ssh' == $args['connection_type'] AND extension_loaded('ssh2') AND 
 			function_exists('stream_get_contents') ) 
 		{
 			// Use SSH
 			$method = 'ssh2';
-		}
+		}*/
 
 		if ( ! $method AND extension_loaded('ftp') ) 
 		{ 
@@ -175,12 +187,14 @@ class Update {
 		 	$method = 'ftpext';
 		}
 
-		if ( ! $method AND ( extension_loaded('sockets') OR 
+		/*
+		 * I can't seem to get ftp via sockets to work. disabling for now
+		 *if ( ! $method AND ( extension_loaded('sockets') OR 
 			function_exists('fsockopen') ) ) 
 		{ 
 			// Sockets: Socket extension; PHP Mode: FSockopen / fwrite / fread
 			$method = 'ftpsockets'; 
-		}
+		}*/
 		
 		return ucfirst($method);
 	}

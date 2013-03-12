@@ -1,5 +1,5 @@
 <?php
-class ftp extends Ftp_Core {
+class ftp extends Pemftps_Core {
 
 	function ftp($verb=FALSE, $le=FALSE) {
 		$this->__construct($verb, $le);
@@ -105,7 +105,7 @@ class ftp extends Ftp_Core {
 				$this->_data_close();
 				return FALSE;
 			}
-			$ip_port = explode(",", preg_replace("/^.+ \\(?([0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]+,[0-9]+)\\)?.*".CRLF."$/", "\\1", $this->_message));
+			$ip_port = explode(",", ereg_replace("^.+ \\(?([0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]+,[0-9]+)\\)?.*".CRLF."$", "\\1", $this->_message));
 			$this->_datahost=$ip_port[0].".".$ip_port[1].".".$ip_port[2].".".$ip_port[3];
             $this->_dataport=(((int)$ip_port[4])<<8) + ((int)$ip_port[5]);
 			$this->SendMSG("Connecting to ".$this->_datahost.":".$this->_dataport);

@@ -1,13 +1,8 @@
 <?php 
-	
-	require_once('Pclzip.php');
-	require_once('PemFtp.php');
-	require_once('Ushahidi_FileSystem_Base.php');
-
 	/**
 	 * Filesystem Class for implementing FTP Sockets.
 	 */
-	class Ushahidi_FileSystem_Ftpsocket extends Ushahidi_FileSystem_Base {
+	class Ushahidi_FileSystem_Ftpsockets extends Ushahidi_FileSystem_Base {
 		public $ftp = false;
 		public $errors = array();
 		public $options = array();
@@ -15,55 +10,78 @@
 		public function __construct($opt = '') {
 			$this->method = 'ftpsockets';
 
-			//Check if possible to use ftp functions
-
+			$ftp_init = new PemFtps();
 			$this->ftp = new ftp();
 
 			//Set defaults:
-			if ( empty($opt['port']) )
+			$port = $opt->get('port');
+			
+			$hostname = $opt->get('hostname');
+			
+			$username = $opt->get('username');
+			
+			$password = $opt->get('password');
+
+			if ( empty($port))
+			{ 
 				$this->options['port'] = 21;
+			}
 			else
-				$this->options['port'] = $opt['port'];
+			{ 
+				$this->options['port'] = $port;
+			}
 
-			if ( empty($opt['hostname']) )
+			if ( empty($hostname) )
+			{ 
 				$this->errors[] = 'FTP hostname is required';
+			}
 			else
-				$this->options['hostname'] = $opt['hostname'];
-
-			if ( ! empty($opt['base']) )
-				$this->wp_base = $opt['base'];
+			{ 
+				$this->options['hostname'] = $hostname;
+			}
 
 			// Check if the options provided are OK.
-			if ( empty ($opt['username']) )
+			if ( empty($username) )
+			{ 
 				$this->errors[] = 'FTP username is required';
+			}
 			else
-				$this->options['username'] = $opt['username'];
+			{ 
+				$this->options['username'] = $username;
+			}
 
-			if ( empty ($opt['password']) )
+			if ( empty($password) )
+			{ 
 				$this->errors[] = 'FTP password is required';
+			}
 			else
-				$this->options['password'] = $opt['password'];
+			{ 
+				$this->options['password'] = $password;
+			}
 		}
 
 		public function connect() {
 			if ( ! $this->ftp )
-				return false;
-
+				return FALSE;
+			
 			$this->ftp->setTimeout(FS_CONNECT_TIMEOUT);
 
-			if ( ! $this->ftp->SetServer($this->options['hostname'], $this->options['port']) ) {
+			if ( ! $this->ftp->SetServer($this->options['hostname'], $this->options['port']) ) 
+			{
 				$this->errors[] = sprintf('Failed to connect to FTP Server %1$s:%2$s', $this->options['hostname'], $this->options['port']);
-				return false;
+				return FALSE;
 			}
 
-			if ( ! $this->ftp->connect() ) {
+			if ( ! $this->ftp->connect() ) 
+			{
 				$this->errors[] = sprintf('Failed to connect to FTP Server %1$s:%2$s', $this->options['hostname'], $this->options['port']);
-				return false;
+				return FALSE;
 			}
 
-			if ( ! $this->ftp->login($this->options['username'], $this->options['password']) ) {
+			if ( ! $this->ftp->login($this->options['username'], $this->options['password']) ) 
+			{
 				$this->errors[] =  sprintf('Username/Password incorrect for %s', $this->options['username']);
-				return false;
+				return FALSE;
 			}
 
 			$this->ftp->SetType(FTP_AUTOASCII);
@@ -74,7 +92,7 @@
 
 		public function get_contents($file, $type = '', $resumepos = 0) {
 			if ( ! $this->exists($file) )
-				return false;
+				return FALSE;
 
 			if ( empty($type) )
 				$type = FTP_AUTOASCII;
@@ -83,7 +101,7 @@
 			$temp = wp_tempnam( $file );
 
 			if ( ! $temphandle = fopen($temp, 'w+') )
-				return false;
+				return FALSE;
 
 			if ( ! $this->ftp->fget($temphandle, $file) ) {
 				fclose($temphandle);
@@ -132,7 +150,7 @@
 		public function cwd() {
 			$cwd = $this->ftp->pwd();
 			if ( $cwd )
-				$cwd = trailingslashit($cwd);
+				$cwd = $this->trailingslashit($cwd);
 			return $cwd;
 		}
 
@@ -323,7 +341,7 @@
 
 			$list = $this->ftp->dirlist($path);
 			if ( empty($list) && !$this->exists($path) )
-				return false;
+				return FALSE;
 
 			$ret = array();
 			foreach ( $list as $struc ) {

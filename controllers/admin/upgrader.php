@@ -134,9 +134,10 @@ class Upgrader_Controller extends Admin_Controller {
 		$zip_file = Kohana::config('upload.relative_directory')."/upgrade/ushahidi.zip";
 
 		// These paths makes it possible for ftp to manipulate files
+		
 		$from = $this->upgrade->filesystem->trailingslashit($this->upgrade->filesystem->abspath())."media/uploads/upgrade/";
 		$root = $this->upgrade->filesystem->trailingslashit($this->upgrade->filesystem->abspath());
-
+		
 		if ($step == 0)
 		{
 			$this->upgrade->logger("Downloading latest version of ushahidi...Url");
