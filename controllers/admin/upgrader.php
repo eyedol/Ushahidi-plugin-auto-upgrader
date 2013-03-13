@@ -137,7 +137,7 @@ class Upgrader_Controller extends Admin_Controller {
 		
 		$from = $this->upgrade->filesystem->trailingslashit($this->upgrade->filesystem->abspath())."media/uploads/upgrade/";
 		$root = $this->upgrade->filesystem->trailingslashit($this->upgrade->filesystem->abspath());
-		
+
 		if ($step == 0)
 		{
 			$this->upgrade->logger("Downloading latest version of ushahidi...Url");
@@ -223,8 +223,8 @@ class Upgrader_Controller extends Admin_Controller {
 		{
 			// backup database.
 			// is gzip enabled ?
-			//$gzip = Kohana::config('config.output_compression');
-			$gzip = TRUE;
+			$gzip = Kohana::config('config.output_compression');
+			$error =  $this->_do_db_backup($gzip);
 			if (empty($error))
 			{
 				if (file_exists(DOCROOT."sql/"))
