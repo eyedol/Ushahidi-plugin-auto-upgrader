@@ -141,7 +141,7 @@ class Upgrader_Controller extends Admin_Controller {
 		if ($step == 0)
 		{
 			$this->upgrade->logger("Downloading latest version of ushahidi...Url");
-			echo json_encode(array("status"=>"success", "message"=> 'Downloading latest version of ushahidi... url '));
+			echo json_encode(array("status"=>"success", "message"=> "message"=> Kohana.lang('upgrader.download')));
 		}
 
 		if ($step == 1)
@@ -161,12 +161,12 @@ class Upgrader_Controller extends Admin_Controller {
 			{
 				$this->upgrade->write_to_file($latest_ushahidi, $zip_file);
 				$this->upgrade->logger("Successfully Downloaded. Unpacking ".$zip_file);
-				echo json_encode(array("status"=>"success", "message"=> 'Successfully Downloaded'));
+				echo json_encode(array("status"=>"success", "message"=> Kohana::lang('upgrade.successfully_downloaded')));
 			}
 			else
 			{
 				$this->upgrade->logger("** Failed downloading.\n\n");
-				echo json_encode(array("status"=>"error", "message"=> 'Failed downloading. '));
+				echo json_encode(array("status"=>"error", "message"=> Kohana::lang('upgrade.failed_downloading')));
 			} 
 		}
 
@@ -179,12 +179,12 @@ class Upgrader_Controller extends Admin_Controller {
 			if ($this->upgrade->success)
 			{
 				$this->upgrade->logger("Successfully Unpacked. Copying files...");
-				echo json_encode(array("status"=>"success", "message"=>'Successfully Unpacked. Copying files...'));
+				echo json_encode(array("status"=>"success", "message"=>Kohana::lang('upgrade.successfully_unpacked')));
 			}
 			else
 			{
 				$this->upgrade->logger("** Failed unpacking.\n\n");
-				echo json_encode(array("status"=>"error", "message"=>'Failed unpacking.'));
+				echo json_encode(array("status"=>"error", "message"=>Kohana::lang('upgrade.failed_unpacking')));
 			}
 		}
 
@@ -208,12 +208,12 @@ class Upgrader_Controller extends Admin_Controller {
 			if ($this->upgrade->success)
 			{
 				$this->upgrade->logger("Successfully Copied. Upgrading Database...");
-				echo json_encode(array("status"=>"success", "message"=>'Successfully Copied. Upgrading Database...'));
+				echo json_encode(array("status"=>"success", "message"=>Kohana::lang('upgrade.successfully_copied')));
 			}
 			else
 			{
 				$this->upgrade->logger("** Failed copying files.\n\n");
-				echo json_encode(array("status"=>"error", "message"=>'Failed copying files.'));
+				echo json_encode(array("status"=>"error", "message"=>Kohana::lang('upgrade.failed_copying')));
 			}
 		}
 
@@ -233,12 +233,12 @@ class Upgrader_Controller extends Admin_Controller {
 				}
 
 				$this->upgrade->logger("Database backup and upgrade successful.");
-				echo json_encode(array("status"=>"success", "message"=>'Database backup and upgrade successful.'));
+				echo json_encode(array("status"=>"success", "message"=>Kohana::lang('upgrade.backup_success')));
 			}
 			else
 			{
 				$this->upgrade->logger("** Failed backing up database.\n\n");
-				echo json_encode(array("status"=>"error", "message"=>'Failed backing up database.'));
+				echo json_encode(array("status"=>"error", "message"=>Kohana::lang('upgrade.backup_failed')));
 			}
 		}
 
@@ -251,13 +251,13 @@ class Upgrader_Controller extends Admin_Controller {
 				//upgrade tables
 				$this->_process_db_upgrade(DOCROOT."sql/");
 				$this->upgrade->logger("Database upgrade successful.");
-				echo json_encode(array("status"=>"success", "message"=>'Database upgrade successful.'));
+				echo json_encode(array("status"=>"success", "message"=>Kohana::lang('upgrade.dbupgrade_success')));
 			}
 			else
 			{
 
 				$this->upgrade->logger("Database upgrade failed.");
-				echo json_encode(array("status"=>"error", "message"=>'Database upgrade failed.'));
+				echo json_encode(array("status"=>"error", "message"=>Kohana::lang('upgrade.dbupgrade_success')));
 			}
 		}
 
@@ -265,7 +265,7 @@ class Upgrader_Controller extends Admin_Controller {
 		if ($step == 6)
 		{
 			$this->upgrade->logger("Deleting downloaded files...");
-			echo json_encode(array("status"=>"success", "message"=>'Deleting downloaded files'));		
+			echo json_encode(array("status"=>"success", "message"=>Kohana::lang('upgrade.deleting_files')));		
 		}
 
 		if ($step == 7)
