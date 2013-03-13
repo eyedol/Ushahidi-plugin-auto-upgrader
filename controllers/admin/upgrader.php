@@ -233,7 +233,12 @@ class Upgrader_Controller extends Admin_Controller {
 				}
 
 				$this->upgrade->logger("Database backup and upgrade successful.");
-				echo json_encode(array("status"=>"success", "message"=>Kohana::lang('upgrader.backup_success')));
+				echo json_encode(array("status"=>"success", "message"=>
+					sprintf(Kohana::lang('upgrader.dbupgrade_success').
+						' Database backup at <a href="%s">media/uploads/%s',
+						url::site().$this->session->get('backup_filename'),
+						$this->session->get('backup_filename'))
+					));
 			}
 			else
 			{
@@ -277,7 +282,7 @@ class Upgrader_Controller extends Admin_Controller {
 				$this->upgrade->logger("UPGRADE SUCCESSFUL");
 				echo json_encode(array(
 							"status"=>"success",
-							"message"=> Kohana::lang('upgrader.upgrade_success', array( url::site("admin/upgrade/logfile?f=".$this->session->get('upgrade_session').".txt")))
+							"message"=> sprintf(Kohana::lang('upgrader.upgrade_success').' View <a href="%s" target="_blank">Log File</a>', url::site("admin/upgrade/logfile?f=".$this->session->get('upgrade_session').".txt"))
 				));
 			}
 			else
@@ -519,6 +524,9 @@ class Upgrader_Controller extends Admin_Controller {
 		$backup['filepath'] = preg_replace('/\//', '/', Kohana::config('upload.relative_directory'));
 		$backup['filename'] = $backup['filepath'].'/backup_'.$this->session->get('upgrade_session').'.sql';
 		
+		// Set backup filename
+		$this->session->set('backup_filename', $backup['filename']);
+
 		if ($gzip)
 		{
 			$backup['filename'] = $backup['filename'].'.gz';
