@@ -277,7 +277,7 @@ class Upgrader_Controller extends Admin_Controller {
 				$this->upgrade->logger("UPGRADE SUCCESSFUL");
 				echo json_encode(array(
 							"status"=>"success",
-							"message"=> sprintf('UPGRADE SUCCESSFUL. View <a href="%s" target="_blank">Log File</a>', Url::base()."admin/upgrade/logfile?f=".$this->session['upgrade_session'].".txt")
+							"message"=> Kohana::lang('upgrade.upgrade_success', array( url::site("admin/upgrade/logfile?f=".$this->session->get('upgrade_session').".txt")))
 				));
 			}
 			else
@@ -285,7 +285,7 @@ class Upgrader_Controller extends Admin_Controller {
 				$this->upgrade->logger("UPGRADE WENT UNSUCCESSFUL");
 				echo json_encode(array(
 							"status"=>"error",
-							"message"=> sprintf('UPGRADE UNSUCCESSFUL. View <a href="%s" target="_blank">Log File</a>', Url::base()."admin/upgrade/logfile?f=".$this->session['upgrade_session'].".txt")
+							"message"=> sprintf('UPGRADE UNSUCCESSFUL. View <a href="%s" target="_blank">Log File</a>', url::site("admin/upgrade/logfile?f=".$this->session->get('upgrade_session').".txt"))
 				));
 			}
 		}
