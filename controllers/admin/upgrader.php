@@ -524,8 +524,7 @@ class Upgrader_Controller extends Admin_Controller {
 		$backup['filepath'] = preg_replace('/\//', '/', Kohana::config('upload.relative_directory'));
 		$backup['filename'] = $backup['filepath'].'/backup_'.$this->session->get('upgrade_session').'.sql';
 		
-		// Set backup filename
-		$this->session->set('backup_filename', $backup['filename']);
+		
 
 		if ($gzip)
 		{
@@ -538,6 +537,8 @@ class Upgrader_Controller extends Admin_Controller {
 			$command = $mysql_path['mysqldump'].' --host="'.$backup['host'].'" --user="'.$backup['user'].'" --password="'.$backup['password'].'" --add-drop-table --skip-lock-tables '.$backup['database'].' > '.$backup['filename'];
 		}
 		
+		// Set backup filename
+		$this->session->set('backup_filename', $backup['filename']);
 		$this->upgrade->logger("Backing up database to ".DOCROOT."media/uploads/".$backup['filename']);
 		
 		//Execute mysqldump command
