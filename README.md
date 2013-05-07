@@ -1,9 +1,9 @@
-Auto-Upgrader
-#############
+# Auto-Upgrader
 
 An Ushahidi plugin to automagically upgrade an Ushahidi install
 
-== Installation ==
+### Installation
+
 1. Copy the entire /autoupgrader/ directory into your /plugins/ directory.
 2. Activate the plugin.
 3. Make sure your webserver can write to the folder your Ushahidi deployment is installed in. On Ubuntu you can do sudo chmod -R www-data: [your_ushahidi_folder]. If the plugin ask for your FTP details, make sure you provide the correct `host` `username` and `password`. Also your FTP user must be able to manipulate your installed Ushahidi files.
