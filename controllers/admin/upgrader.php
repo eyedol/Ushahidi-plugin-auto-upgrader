@@ -292,7 +292,7 @@ class Upgrader_Controller extends Admin_Controller {
 				$this->upgrade->logger("UPGRADE SUCCESSFUL");
 				echo json_encode(array(
 							"status"=>"success",
-							"message"=> sprintf(Kohana::lang('upgrader.upgrade_success').' View <a href="%s" target="_blank">Log File</a>', url::site("admin/upgrade/logfile?f=".$this->session->get('upgrade_session').".txt"))
+							"message"=> sprintf(Kohana::lang('upgrader.upgrade_success').' View <a href="%s" target="_blank">Log File</a>', url::site("admin/upgrader/logfile?f=".$this->session->get('upgrade_session').".txt"))
 				));
 			}
 			else
@@ -300,7 +300,7 @@ class Upgrader_Controller extends Admin_Controller {
 				$this->upgrade->logger("UPGRADE WENT UNSUCCESSFUL");
 				echo json_encode(array(
 							"status"=>"error",
-							"message"=> sprintf('UPGRADE UNSUCCESSFUL. View <a href="%s" target="_blank">Log File</a>', url::site("admin/upgrade/logfile?f=".$this->session->get('upgrade_session').".txt"))
+							"message"=> sprintf('UPGRADE UNSUCCESSFUL. View <a href="%s" target="_blank">Log File</a>', url::site("admin/upgrader/logfile?f=".$this->session->get('upgrade_session').".txt"))
 				));
 			}
 		}
