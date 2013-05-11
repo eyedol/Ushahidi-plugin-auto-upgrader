@@ -207,6 +207,13 @@ class Update {
  	 */
 	public function unzip_ushahidi($zip_file, $destdir)
 	{
+        $pclzip_file = Kohana::find_file('libraries','Pclzip');
+		if ( ! file_exists($pclzip_file) ) {
+            return;
+        }
+    
+		require_once($pclzip_file);
+
 		$archive = new Pclzip($zip_file);
 		$this->logger(sprintf("Unpacking %s ",$zip_file));
 

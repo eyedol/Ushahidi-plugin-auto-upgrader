@@ -57,7 +57,11 @@ class Upgrader_Controller extends Admin_Controller {
 				$this->upgrade->logger("STARTED UPGRADE\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 				$this->template->content = new View('admin/upgrader/upgrader_status');
 				$this->template->js = new View('admin/upgrader/upgrader_status_js');
+                $this->themes->js = new View('admin/upgrader/upgrader_status_js');
+
 				$this->template->js->backup = $post->chk_db_backup_box;
+                $this->themes->js->backup = $post->chk_db_backup_box;
+
 				$this->template->content->title = Kohana::lang('upgrader.upgrade_ushahidi_status');
 				
 				// Set submitted ftp credentials
@@ -90,11 +94,15 @@ class Upgrader_Controller extends Admin_Controller {
 				
 				// Log file location
 				$this->template->js->log_file = url::site(). "admin/upgrader/logfile?f=".$this->session->get('upgrade_session').".txt";
+                $this->themes->js->log_file = url::site(). "admin/upgrader/logfile?f=".$this->session->get('upgrade_session').".txt";
+
 			}
 			 // No! We have validation errors, we need to show the form again, with the errors
 			else
 			{
 				$this->template->js = new View('admin/upgrader/upgrader_js');
+                $this->themes->js = new View('admin/upgrader/upgrader_js');
+
 				
 				// repopulate the form fields
 				$form = arr::overwrite($form, $post->as_array());
@@ -107,6 +115,8 @@ class Upgrader_Controller extends Admin_Controller {
 		else
 		{
 			$this->template->js = new View('admin/upgrader/upgrader_js');
+            $this->themes->js = new View('admin/upgrader/upgrader_js');
+
 		}
 		
 		$this->template->content->ftp_server = Settings_Model::get_setting('ftp_server');
