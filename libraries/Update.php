@@ -481,6 +481,7 @@ class Update {
 		else
 		{
 			$this->errors[] = sprintf("Directory %s not deleted", $dir );
+			$this->logger(sprintf("Directory %s not deleted", $dir ));
 			$this->success = FALSE;	
 		}
 	}
