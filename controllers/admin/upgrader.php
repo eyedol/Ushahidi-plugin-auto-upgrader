@@ -34,6 +34,9 @@ class Upgrader_Controller extends Admin_Controller {
 		$this->template->content->title = Kohana::lang('upgrader.upgrade_ushahidi');
 
 		$this->template->content->db_version = Kohana::config('settings.db_version');
+		
+		$this->template->js = new View('admin/upgrader/upgrader_js');
+        $this->themes->js = new View('admin/upgrader/upgrader_js');
 
 		 //Setup and initialize form fields names
 		$form = array 
@@ -112,13 +115,7 @@ class Upgrader_Controller extends Admin_Controller {
 				$form_error = TRUE;
 			}
 		}
-		else
-		{
-			$this->template->js = new View('admin/upgrader/upgrader_js');
-            $this->themes->js = new View('admin/upgrader/upgrader_js');
-
-		}
-		
+	
 		$this->template->content->ftp_server = Settings_Model::get_setting('ftp_server');
 		$this->template->content->ftp_user_name = Settings_Model::get_setting('ftp_user_name');
 		
