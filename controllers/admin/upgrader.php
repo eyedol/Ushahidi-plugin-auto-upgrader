@@ -242,7 +242,7 @@ class Upgrader_Controller extends Admin_Controller {
 				$this->upgrade->logger("Database backup and upgrade successful.");
 				echo json_encode(array("status"=>"success", "message"=>
 					sprintf(Kohana::lang('upgrader.dbupgrade_success').
-						' Database backup at <a href="%s">media/uploads/%s',
+						' Database backup at <a href="%s">%s',
 						url::site().$this->session->get('backup_filename'),
 						$this->session->get('backup_filename'))
 					));
